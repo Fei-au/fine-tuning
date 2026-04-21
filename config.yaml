@@ -1,0 +1,29 @@
+seed: 42
+
+model:
+  model_name: distilbert-base-uncased
+
+data:
+  dataset_name: ag_news
+  dataset_config:
+  text_column: text
+  label_column: label
+  max_length: 256 # maximum sequence length for tokenization, eg. 256 tokens per sample. Longer sequences will be truncated, shorter sequences will be padded to this length.
+  validation_split: 0.1 # training, validation, test split. validation is for early stopping and model checkpointing, test is for final evaluation after training is complete. eg. 90% train, 10% validation, 0% test
+
+training:
+  output_dir: outputs/ag_news_distilbert
+  learning_rate: 2.0e-5 # Learning Rate is the step size factor in the Gradient Descent algorithm
+  train_batch_size: 16 # eg. 25600 dataset size, 16 batch size, 1600 steps per epoch 
+  eval_batch_size: 32 # early stopping is based on evaluation, so we can use a larger batch size for evaluation
+  epochs: 2 # eg. 1600 steps per epoch, 2 epochs, 3200 total steps
+  weight_decay: 0.01 # L = L0 + 0.01 * ||w||^2, helps prevent overfitting by penalizing large weights. Normally set to a small value like 0.01 or 0.001
+  warmup_ratio: 0.1 # 10% of total steps for warmup, eg. 3200 total steps, 320 warmup steps. Linear warmup
+  logging_steps: 50 # log training metrics every 50 steps, eg. 1600 steps per epoch, log every 3% of an epoch
+  evaluation_strategy: epoch # evaluate every epoch. Get evalutaion metrics for early stopping and model checkpointing, eg. 1600 steps per epoch, evaluate every 1600 steps
+  save_strategy: epoch # save model every epoch for checkpointing, eg. 1600 steps per epoch, save every 1600 steps
+  save_total_limit: 2 # save only the 2 most recent checkpoints to save disk space.
+  metric_for_best_model: macro_f1 # calculate macro F1 score on every class and average them
+  report_to:
+    - tensorboard # log training and evaluation metrics to TensorBoard for visualization
+  fp16: true # default is fp32, float 32 bits. Use fp16 (half precision) to speed up training and reduce memory usage on compatible GPUs.
